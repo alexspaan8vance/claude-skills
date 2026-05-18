@@ -1,6 +1,6 @@
 # 8vance API quirks (production)
 
-Verified 2026-05-15/18 on prod with Lidl + Kaufland client_credentials.
+Verified 2026-05-15/18 on prod with two retail-tenant client_credentials.
 
 ## 1. AVOID `POST /public/v1/import/talent/`
 Returns talent_id even on `400 Preprocessing error` but creates an **empty shell** (no first_name, no email, no skills). The "preprocessing" tries to parse an HR-XML-ish schema and fails silently for our generated structure.
@@ -19,7 +19,7 @@ Match + search endpoints require body:
 ```json
 {"sources": ["<name>"]}
 ```
-Valid `<name>` values per tenant come from `GET /public/v1/company/{id}/sources/` → `source.name` field. For Lidl: `lidl`. For Kaufland: `kaufland`. Sending `["public"]` fails with `"Found invalid sources or not enough privileges"` (the sources_url helper is at `/api/user-sources/`).
+Valid `<name>` values per tenant come from `GET /public/v1/company/{id}/sources/` → `source.name` field (typically the tenant's slug, e.g. `acme`). Sending `["public"]` fails with `"Found invalid sources or not enough privileges"` (the sources_url helper is at `/api/user-sources/`).
 
 ## 4. `/match/talent/?job_id=` returns 0 (forward direction)
 With client_credentials grants this endpoint always returns 0 results, even with `enable_match_threshold_ignore=true` and `force_ignore_threshold=true`. The scope behind these creds does not include the cross-tenant talent listing.
@@ -59,15 +59,15 @@ If `auth/token/client/` fails or you don't extract `access`, the Authorization h
 Always verify `$jwt.Length > 0` after auth.
 
 ## 10. JWT TTL ~10 min
-Re-auth every ~7-8 min during long uploads. Lidl + Kaufland clients have separate token pools — re-auth per tenant when switching.
+Re-auth every ~7-8 min during long uploads. Each tenant has a separate token pool — re-auth per tenant when switching.
 
-## 11. Rate limits (from prior memory + observation)
-- `talent_importer` (create + sub-resources): 36000/hour → 10/sec OK; we use 1-2/sec to be safe
-- `public` (GET on resources, sources, talent listing): 60/min → 1s between
-- `auth` (token/client/ POST): 10/min → ≥6s between logins
-- `apply_without_account`: 5/min
+## 11. Rate limits
+The 8vance API rate-limits per endpoint group. Safe defaults this skill uses:
+- Talent create + sub-resource POSTs: 1-2 calls/sec
+- Public GETs (resources, sources, talent listing): >=1s between calls
+- Auth (token/client/ POST): >=6s between logins
 
-Throttle 429 returns `{"detail":"Request was throttled. Expected available in X second(s)"}`. Respect Retry-After or back off 2s, 4s, 8s.
+Throttle 429 returns `{"detail":"Request was throttled. Expected available in X second(s)"}`. Respect `Retry-After` header or back off 2s, 4s, 8s. Numeric limits are tenant-specific - ask your 8vance admin if planning bulk imports.
 
 ## 12. /resources/skill/?q= is OPTIONAL for matching
 When generating talents to match a vacancy, the `/job/{id}/skill/` response already includes `skill` (taxonomy_id) per entry. Use those directly in `selectedSkillsID` and `POST /talent/{id}/skill/`. No need to resolve names through `/resources/skill/?q=` (saves ~5 calls per job).

@@ -1,5 +1,5 @@
 # Look up default source_name for a tenant
-# Usage: $src = & .\lookup_source.ps1 -Jwt $jwt -CompanyId 34329
+# Usage: $src = & .\lookup_source.ps1 -Jwt $jwt -CompanyId 12345
 param(
   [Parameter(Mandatory=$true)][string]$Jwt,
   [Parameter(Mandatory=$true)][int]$CompanyId,

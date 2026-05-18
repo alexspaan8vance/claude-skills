@@ -2,7 +2,7 @@
 
 Use these realistic German cities with correct PLZ when generating talents for German vacancies. Pick a city within ~10 km of the vacancy city.
 
-## Schwarz Gruppe HQ region (Lidl + Kaufland + SCOS hubs)
+## Region Heilbronn / Neckarsulm (Baden-Württemberg corporate hub)
 | City | PLZ | Region |
 |---|---|---|
 | Neckarsulm | 74172 | Baden-Württemberg |
@@ -18,7 +18,7 @@ Use these realistic German cities with correct PLZ when generating talents for G
 | Möckmühl | 74219 | Baden-Württemberg |
 | Roigheim | 74255 | Baden-Württemberg |
 
-## Region Stuttgart (for Ebersbach/Lidl Immobilien talents)
+## Region Stuttgart (for Ebersbach a.d. Fils + surrounds)
 | City | PLZ | Region |
 |---|---|---|
 | Ebersbach a.d. Fils | 73061 | Baden-Württemberg |
@@ -28,7 +28,7 @@ Use these realistic German cities with correct PLZ when generating talents for G
 | Reichenbach a.d. Fils | 73262 | Baden-Württemberg |
 | Esslingen | 73728 | Baden-Württemberg |
 
-## Region Donnersdorf (Kaufland Bayern logistik)
+## Region Donnersdorf (Bayern logistics)
 | City | PLZ | Region |
 |---|---|---|
 | Donnersdorf | 97499 | Bayern |
@@ -36,7 +36,7 @@ Use these realistic German cities with correct PLZ when generating talents for G
 | Gerolzhofen | 97447 | Bayern |
 | Volkach | 97332 | Bayern |
 
-## Region Meineweh (Kaufland Sachsen-Anhalt DC)
+## Region Meineweh (Sachsen-Anhalt logistics)
 | City | PLZ | Region |
 |---|---|---|
 | Meineweh | 06721 | Sachsen-Anhalt |
@@ -44,7 +44,7 @@ Use these realistic German cities with correct PLZ when generating talents for G
 | Naumburg | 06618 | Sachsen-Anhalt |
 | Weißenfels | 06667 | Sachsen-Anhalt |
 
-## Region Barsinghausen (Kaufland Niedersachsen DC)
+## Region Barsinghausen (Niedersachsen logistics)
 | City | PLZ | Region |
 |---|---|---|
 | Barsinghausen | 30890 | Niedersachsen |

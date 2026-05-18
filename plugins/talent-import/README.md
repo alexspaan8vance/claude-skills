@@ -35,9 +35,9 @@ If your team distributes Claude Code skills via a plugin registry, package this 
 
 In any Claude Code session, just say what you want:
 
-> "Maak 5 talenten voor company 34330"
-> "Genereer 10 senior accountants in Berlijn voor Kaufland"
-> "Upload 3 testkandidaten per vacature voor company 34329"
+> "Maak 5 talenten voor company {id}"
+> "Genereer 10 senior accountants in Berlijn voor tenant X"
+> "Upload 3 testkandidaten per vacature voor company {id}"
 
 Claude will:
 1. **Ask** for `client_id` + `client_secret` if not provided (never hardcoded).
@@ -114,4 +114,4 @@ MIT — see [LICENSE](LICENSE).
 
 ## Built by
 
-Internal 8vance / Claude Code experiment, May 2026. Distilled from a 108-talent test data run for Lidl + Kaufland on production.
+Internal 8vance / Claude Code experiment, May 2026. Distilled from a 100+ talent test data run on production across multiple retail tenants.
