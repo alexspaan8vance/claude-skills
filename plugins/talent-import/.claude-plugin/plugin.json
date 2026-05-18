@@ -1,0 +1,13 @@
+{
+  "name": "talent-import",
+  "version": "1.0.0",
+  "description": "Generate + upload realistic fictitious test talents to 8vance Public API. Vacancy-based or free-form mode.",
+  "author": {
+    "name": "8vance B.V.",
+    "url": "https://8vance.com",
+    "email": "support@8vance.com"
+  },
+  "homepage": "https://github.com/8vance/claude-skills",
+  "license": "MIT",
+  "keywords": ["8vance", "recruitment", "talent", "test-data", "api"]
+}

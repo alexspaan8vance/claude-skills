@@ -1,117 +1,71 @@
-# 8vance Talent Import — Claude Code Skill
+# 8vance Claude Skills
 
-End-to-end pipeline for generating and uploading realistic, fully-populated fictitious test talents to the **8vance Public API** (production or acceptance). Built for **Claude Code**.
+Marketplace of Claude Code skills + commands built by the **8vance engineering team**. Internal tooling for the 8vance Public API, n8n workflows, Zoho integrations, and recruiter automation, packaged so any colleague can install with one command.
 
-Two modes:
-- **A — Vacancy-based**: pulls existing job(s) + their skill taxonomy from your tenant, then generates talents that match (~80% skill overlap, realistic locations, German names for DE jobs, etc).
-- **B — Free-form**: generate talents from a plain-language spec ("10 senior backend engineers in Berlin"), no vacancy basis.
+## Quick install
 
-Uses the **canonical `POST /public/v1/talent/`** endpoint (returns 201 with full data) rather than the broken `/import/talent/` endpoint that creates empty shells via a flaky HR-XML parser.
-
-## What it produces per talent
-
-- `first_name`, `last_name`, `email` (unique `@example.test`), `phone`, `date_of_birth`
-- `linkedin`, `website`, `about_me`, `participate_in_matching: true`
-- `availability_start_date`, hours range, source name
-- **5 education entries** (Grundschule → Gymnasium → FH/Uni → Master → Cert for DE)
-- **4 job-experience entries** (chronological, last current with `end_date: null`)
-- **~10 skills** (proficiency=Competent, taxonomy IDs from the vacancy)
-- **2 languages** (DE native L5/5/5 + EN advanced L4/4/4 default)
-
-All talents are immediately indexed by the matching engine. Verified by `POST /match/job/?talent_id=` showing the target vacancy in top matches.
-
-## Installation
-
-### Option A — Copy into your `~/.claude/skills/` dir
-```bash
-git clone <this-repo-url> ~/.claude/skills/8vance-talent-import
-```
-Claude Code auto-discovers it on next session.
-
-### Option B — Install as a plugin
-If your team distributes Claude Code skills via a plugin registry, package this dir as a plugin (see [Claude Code plugin docs](https://docs.claude.com/claude-code)).
-
-## Usage
-
-In any Claude Code session, just say what you want:
-
-> "Maak 5 talenten voor company 34330"
-> "Genereer 10 senior accountants in Berlijn voor Kaufland"
-> "Upload 3 testkandidaten per vacature voor company 34329"
-
-Claude will:
-1. **Ask** for `client_id` + `client_secret` if not provided (never hardcoded).
-2. Ask for environment (prod/acc), mode, spec, locale.
-3. Auth + source lookup via API.
-4. Mode A: fetch vacancies. Mode B: resolve skill names.
-5. Generate talents in-context.
-6. **Show you a sample-of-1** for approval before mass upload.
-7. Upload + enrich sequentially (1-2 sec rate-limited).
-8. Verify 3-5 random talents.
-9. Run a match test (target vacancy should appear in top-7 for Mode A).
-10. Report with sample names + log paths.
-
-Output files land in `talents_workspace/` in your current directory:
-- `_sources.json` — cached source_name per company
-- `{tenant}_{job_id}.json` or `{tenant}_freeform_{ts}.json` — generated talent arrays
-- `_imported.jsonl` — `{tenant, job_id, talent_id, talent_name, selectedSkillsID}` per talent
-- `_uploadlog.csv`, `_enrichlog.csv` — audit logs
-
-## Requirements
-
-- **Claude Code** (CLI or IDE)
-- **PowerShell** (Windows) — scripts are PS-based. macOS/Linux: convert to bash/Python or invoke via `pwsh`.
-- **8vance client credentials** with `talent_importer` scope at minimum
-- Network access to `app.8vance.com` (or `acc.8vance.com`)
-
-## Safety conventions
-
-- **Test data only**: emails are always `@example.test`, no real PII
-- **Never hardcoded credentials**: skill always asks; nothing is checked into git
-- **Confirm before bulk upload**: 1 sample shown to user first
-- **Rate limit aware**: 1-2 sec/call, respects 429 Retry-After
-- **`participate_in_matching: true`** so matches work, but talents tagged with company-specific `source` (visible only to your company)
-
-## Project structure
+In Claude Code:
 
 ```
-8vance-talent-import/
-├── SKILL.md                       # entry point Claude reads
-├── README.md                      # this file
+/plugin marketplace add 8vance/claude-skills
+/plugin install talent-import@8vance
+```
+
+Restart Claude Code and the skill is auto-discoverable on any `"maak X talenten"` style prompt.
+
+## Available plugins
+
+| Plugin | What it does |
+|---|---|
+| [`talent-import`](./plugins/talent-import) | Generate + upload realistic fictitious test talents to 8vance prod/acc. Two modes: vacancy-based matching, or free-form spec. Uses direct `POST /talent/` + sub-resource enrichment. |
+
+More plugins coming as the team builds them — open a PR.
+
+## What is a Claude Code plugin?
+
+A plugin is a small package of skills, slash-commands, hooks, or MCP servers that Claude Code loads on demand. Skills are markdown-defined behaviors that auto-trigger on relevant prompts; they keep your CLAUDE.md clean while adding deep domain expertise.
+
+This marketplace lets the 8vance team share that domain expertise across all team members' Claude installs.
+
+## Repository structure
+
+```
+claude-skills/
+├── .claude-plugin/
+│   └── marketplace.json       # marketplace manifest (one file per plugin)
+├── README.md                  # this file
 ├── LICENSE
 ├── .gitignore
-├── references/
-│   ├── endpoints.md               # full API endpoint reference
-│   ├── talent_payload.md          # canonical request body shapes
-│   ├── api_quirks.md              # 15 known issues + workarounds
-│   ├── taxonomy_ids.md            # languages, proficiency, education_status
-│   └── german_cities.md           # DE cities + PLZ per region
-└── scripts/                       # PowerShell helpers (reference impls)
-    ├── auth.ps1
-    ├── lookup_source.ps1
-    ├── fetch_job.ps1
-    ├── create_talent.ps1
-    ├── attach_subresources.ps1
-    ├── verify_talent.ps1
-    └── match_test.ps1
+└── plugins/
+    └── talent-import/
+        ├── .claude-plugin/plugin.json   # plugin manifest
+        ├── README.md          # plugin docs
+        └── skills/
+            └── talent-import/
+                ├── SKILL.md   # entry point Claude reads
+                ├── references/ # docs Claude consults on demand
+                └── scripts/    # PowerShell helpers
 ```
 
-## Known limitations
+## Adding a new plugin
 
-- `POST /match/talent/?job_id=` (reverse direction) returns 0 with `client_credentials` grants. Use forward direction `POST /match/job/?talent_id=` for verification.
-- `/talent/{id}/location/` sub-resource requires `latitude`+`longitude` decimal strings; skip it unless you geocode.
-- `/import/talent/` endpoint is bypassed entirely (see `references/api_quirks.md` for why).
-- PowerShell 5.1 + non-ASCII chars (em-dash, smart quotes) breaks the parser; scripts avoid them.
-- Generated emails use `@example.test` — your tenant may need to whitelist this TLD to avoid bounce logic.
+1. Create `plugins/<your-plugin>/.claude-plugin/plugin.json` with name + version + description.
+2. Add skills under `plugins/<your-plugin>/skills/<skill-name>/SKILL.md`.
+3. Add an entry to `.claude-plugin/marketplace.json` `plugins` array.
+4. Open a PR. Once merged, colleagues `/plugin update <name>@8vance`.
 
-## Contributing
+## Safety conventions for all 8vance plugins
 
-PRs welcome. Run a sample upload in **acceptance** (`https://acc.8vance.com`), not production, when testing changes. Update `references/api_quirks.md` whenever you encounter a new edge case.
+- **Never hardcode credentials** — always ask the user.
+- **Confirm before destructive or bulk operations** — show 1 sample, ask "ship it?".
+- **Rate-limit aware** — respect API rate-limit headers; back off on 429.
+- **Test data only**: emails `@example.test`, no real PII.
+- **Audit logs**: write CSV/JSONL of what was created so users can rollback.
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
 
-## Built by
+## Maintainer
 
-Internal 8vance / Claude Code experiment, May 2026. Distilled from a 108-talent test data run for Lidl + Kaufland on production.
+Contact #ai-team on Slack or `support@8vance.com`.

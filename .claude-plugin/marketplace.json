@@ -1,0 +1,19 @@
+{
+  "name": "8vance",
+  "owner": {
+    "name": "8vance B.V.",
+    "url": "https://8vance.com",
+    "email": "support@8vance.com"
+  },
+  "description": "Claude Code skills built by the 8vance engineering team. Internal + community-contributed productivity tooling for the 8vance Public API, n8n workflows, Zoho integrations, and recruiter automation.",
+  "plugins": [
+    {
+      "name": "talent-import",
+      "source": "./plugins/talent-import",
+      "description": "Generate and upload realistic, fully-populated fictitious test talents to the 8vance Public API. Two modes: vacancy-based (fetch jobs, generate matching talents) and free-form (generate from natural-language spec). Uses POST /talent/ direct + sub-resource enrichment (skills, education, job-experience, language). Built for test data setup before demos and shortlist verification.",
+      "version": "1.0.0",
+      "category": "data-import",
+      "keywords": ["8vance", "recruitment", "talent", "test-data", "api", "vacancy", "matching"]
+    }
+  ]
+}
