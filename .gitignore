@@ -1,0 +1,27 @@
+# Local workspace - NEVER commit generated talents or credentials
+talents_workspace/
+*.jsonl
+*_uploadlog.csv
+*_enrichlog.csv
+*_skilllog.csv
+*_imported.jsonl
+.token
+.openai_key
+.env
+.env.*
+*.creds.json
+secrets.json
+_schema.json
+_sources.json
+
+# Common
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+*.bak
+*~
+__pycache__/
+node_modules/
+.vscode/
+.idea/
