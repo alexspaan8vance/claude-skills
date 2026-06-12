@@ -189,10 +189,14 @@ Body: {"sources":["<source_name>"]}
 
 **Reverse** (job → talents):
 ```
-POST /public/v1/match/talent/?job_id={id}&page_size=10&min_score=0
+POST /public/v1/match/talent/?job_id={id}&page_size=10
 Body: {"sources":["<source_name>"]}
 ```
-Without `&min_score=0` the endpoint defaults to a high threshold (~85%) and returns 0 even when talents are indexed. With `min_score=0` (or `debug=true`) all indexed talents surface.
+Measured on ACC 2026-06-12: `min_score` has NO observable effect (0, 50 and omitted
+all return the same count) — do NOT rely on it as a threshold. The real gate:
+**talents without a linked function_name (functional-area) never appear in reverse
+results at all**, regardless of skill overlap. Set `function_name_id` on the current
+job-experience (Step 6b) or the talent is invisible to job→talent matching.
 
 **Indexing delay**: reverse-match index rebuilds asynchronously after talent create/PATCH. Allow 10-30 min before testing. Forward direction is live-computed and works immediately.
 
@@ -269,7 +273,7 @@ Copy + adapt per session. PowerShell target (Windows).
 1. **AVOID `/import/talent/`** — creates empty shell on parse failure. Use `POST /talent/` instead.
 2. **`proficiency_id: 0` INVALID** — use 25 (Competent). Other: 23-28.
 3. **Sources required in match body** — `{"sources":["<name>"]}` from `/company/{id}/sources/`.
-4. **Reverse match needs `min_score=0` query param** — default threshold filters all results to 0.
+4. **Reverse match requires a linked talent function_name** — talents without `function_name_id` on a job-experience (no functional-area row) are absent from job→talent results entirely. `min_score` has no observable effect (measured ACC 2026-06-12).
 5. **UTF-8 body bytes** — always `[System.Text.Encoding]::UTF8.GetBytes($json)`.
 6. **Content-Type `application/json` plain** — `charset=utf-8` suffix → 400.
 7. **PS 5.1 umlaut bug** — use `[char]0x00FC/0xE4/0xF6` not literal `ü/ä/ö`.

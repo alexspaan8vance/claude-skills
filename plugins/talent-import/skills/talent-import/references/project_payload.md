@@ -211,10 +211,12 @@ Body: {"status": 1}
 ## Step 5 — Match test
 
 ```
-POST /match/talent/?job_id={id}&page_size=10&min_score=0
+POST /match/talent/?job_id={id}&page_size=10
 Body: {"sources":["<source_name>"]}
 ```
-Without `min_score=0` default threshold (~85%) filters everything to 0. Reverse index
+`min_score` has no observable effect (measured ACC 2026-06-12). The real gate:
+talents without a linked function_name (functional-area) never appear in
+job→talent results, whatever their skills. Reverse index
 rebuilds async (10-30 min); forward (`/match/job/?talent_id=`) is live.
 
 ## Audit outputs
